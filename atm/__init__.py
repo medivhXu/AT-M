@@ -15,4 +15,6 @@ __email__ = "medivh_xu@outlook.com"
 import os
 from appium import webdriver
 
+
 def device(url, dec):
+    pass

@@ -1,41 +1,60 @@
 #!/usr/bin/env python3
+import re
 import sys
-import abc
 import subprocess
-from atm.log import LOGGER
+from atm.log import LOGGER, logged
 
 
-class Command(metaclass=abc.ABCMeta):
+class Command:
     def __init__(self):
-        self.sys = None
+        pass
 
     @classmethod
+    def stop_appium(cls, port, command_re='appium'):
+        cls.kill_port(cls.find_pid_occupies_port(port=port, command_re=command_re))
+
+    @classmethod
+    @logged
     def kill_port(cls, pid):
         r = cls.run_cmd('kill -9 {}'.format(pid))
         return r
 
     @classmethod
-    def find_used_port(cls, port):
+    @logged
+    def find_pid_occupies_port(cls, port, command_re):
         if sys.platform == 'darwin' or sys.platform == 'linux':
             r = cls.run_cmd('lsof -i tcp:{}'.format(port))
-            return r
+            if iter(r):
+                for i in r:
+                    re_r = re.compile('{}.* '.format(command_re), re.S)
+                    a = re.findall(re_r, i.decode())
+                    if len(a):
+                        c = [j for j in a[0].split(' ') if len(j)]
+                        return c[1]
+            else:
+                re_r = re.compile('{}.* '.format(command_re), re.S)
+                a = re.findall(re_r, r.decode())
+                if len(a):
+                    c = [j for j in a[0].split(' ') if len(j)]
+                    return c[1]
         else:
             r = cls.run_cmd('tasklist|findstr "{}"'.format(port))
-            return r
-
-    @abc.abstractmethod
-    def check_port(self, port):
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def start_appium(self, add, port, bootstrap_port, chrome_port, udid):
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def show_sdk(self):
-        raise NotImplementedError
+            if iter(r):
+                for i in r:
+                    re_r = re.compile('{}.* '.format(command_re), re.S)
+                    a = re.findall(re_r, i.decode())
+                    if len(a):
+                        c = [j for j in a[0].split(' ') if len(j)]
+                        return c[1]
+            else:
+                re_r = re.compile('{}.* '.format(command_re), re.S)
+                a = re.findall(re_r, r.decode())
+                if len(a):
+                    c = [j for j in a[0].split(' ') if len(j)]
+                    return c[1]
 
     @classmethod
+    @logged
     def run_cmd(cls, command):
         try:
             res = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
