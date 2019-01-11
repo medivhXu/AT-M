@@ -4,9 +4,7 @@ import abc
 
 
 class DB(metaclass=abc.ABCMeta):
-    def __init__(self):
-        self.db = None
-
+    """数据库鸡肋"""
     @abc.abstractmethod
     def select(self, sql):
         raise NotImplementedError

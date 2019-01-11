@@ -3,10 +3,8 @@
 import abc
 
 
-class Data(metaclass=abc.ABCMeta):
-    def __init__(self):
-        self.data = ()
-
+class SourceData(metaclass=abc.ABCMeta):
+    """读取数据鸡肋"""
     @abc.abstractmethod
     def get_data(self):
         raise NotImplementedError

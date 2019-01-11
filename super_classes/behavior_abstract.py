@@ -4,30 +4,28 @@ import abc
 
 
 class DriverBehavior(metaclass=abc.ABCMeta):
-    def __init__(self):
-        self.driver = None
-
+    """webdriver 行为封装"""
     @abc.abstractmethod
     def swipe_up(self, driver):
         """左滑"""
         raise NotImplementedError
 
     @abc.abstractmethod
-    def swipe_down(self,driver):
+    def swipe_down(self, driver):
         """下滑"""
         raise NotImplementedError
 
     @abc.abstractmethod
-    def swipe_left(self,driver):
+    def swipe_left(self, driver):
         """上滑"""
         raise NotImplementedError
 
     @abc.abstractmethod
-    def swipe_right(self,driver):
+    def swipe_right(self, driver):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def find_element(self,driver):
+    def find_element(self, driver):
         raise NotImplementedError
 
     @abc.abstractmethod

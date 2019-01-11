@@ -2,12 +2,24 @@
 import re
 import sys
 import subprocess
+import abc
 from atm.log import LOGGER, logged
 
 
-class Command:
-    def __init__(self):
-        pass
+class Command(metaclass=abc.ABCMeta):
+    """鸡肋，用以执行系统命令"""
+    @abc.abstractmethod
+    def start(self):
+        ...
+
+    @abc.abstractmethod
+    def stop(self):
+        ...
+
+    def start_appium(self, udid, add='127.0.0.1', port=4727, bootstrap_port=4728, chrome_port=9519):
+        self.run_cmd(
+            'appium -a {add} -p {port} -bp {bootstrap_port} --chromedriver-port {chrome_port} -U {udid} --session-override'
+                .format(add, port, bootstrap_port, chrome_port, udid))
 
     @classmethod
     def stop_appium(cls, port, command_re='appium'):
@@ -52,6 +64,11 @@ class Command:
                 if len(a):
                     c = [j for j in a[0].split(' ') if len(j)]
                     return c[1]
+
+    @classmethod
+    def echo_path(cls):
+        r = cls.run_cmd('echo $PATH')
+        return r
 
     @classmethod
     @logged

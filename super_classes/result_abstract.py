@@ -4,9 +4,7 @@ import abc
 
 
 class Result(metaclass=abc.ABCMeta):
-    def __init__(self):
-        self.result = None
-
+    """测试结果鸡肋"""
     @abc.abstractmethod
     def save_html(self):
         raise NotImplementedError

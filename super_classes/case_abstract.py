@@ -3,10 +3,7 @@ import abc
 
 
 class Case(metaclass=abc.ABCMeta):
-    def __init__(self, case):
-        self.case = case
-        self.status = False
-
+    """测试用力鸡肋"""
     @abc.abstractmethod
     def get_case(self, case_no):
         raise NotImplementedError
