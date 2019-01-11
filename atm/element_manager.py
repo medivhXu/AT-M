@@ -1,5 +1,5 @@
 # !/uer/bin/env python3
-# coding=utf-8
+
 import time
 import os
 import unittest
@@ -7,6 +7,7 @@ from appium.webdriver.common.mobileby import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
+
 from atm.log import logged
 
 __dir__ = os.path.dirname(os.path.abspath(__file__))

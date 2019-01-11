@@ -12,9 +12,23 @@ __email__ = "medivh_xu@outlook.com"
 * 
 """
 
-import os
-from appium import webdriver
+
+from atm.apps import Apk
+from atm.devices import Android, Ios, IosSimulator
+from exceptions.myexception import *
+from atm.log import LOGGER, logged
 
 
-def device(url, dec):
-    pass
+@logged
+def conn(platform=None, ip=None, capability=None):
+    if not platform:
+        cls = IosSimulator
+    else:
+        platform_dict = {'Android': Android, 'Ios': Ios}
+        if str(platform).capitalize() in platform_dict:
+            cls = platform_dict.get(str(platform).capitalize())
+        else:
+            raise MyException("未实现该平台！目前只实现：{}".format(platform_dict.keys()))
+    c = cls(ip, capability)
+    return c
+

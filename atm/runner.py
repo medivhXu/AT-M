@@ -3,7 +3,8 @@
 import datetime
 import os
 import unittest
-from tool import HTMLTestReportCN
+
+from super_classes import HTMLTestReportCN
 from atm.send_email import SendEmail
 
 

@@ -6,6 +6,7 @@ from smtplib import SMTP_SSL
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.utils import formataddr
+
 from atm.log import logged, LOGGER
 
 conf = configparser.ConfigParser()
