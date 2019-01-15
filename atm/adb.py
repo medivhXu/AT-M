@@ -14,22 +14,19 @@ class Adb(Command):
     def __init__(self):
         super(Adb, self).__init__()
         self._tool_path = self._add_android_path()
-        if self._tool_path:
-            self.adb_path = os.path.join(self._tool_path, 'adb')
-            self.aapt_path = os.path.join(self._tool_path, 'aapt')
-        else:
-            LOGGER.info("APPIUM_TOOLS 存在于系统环境中～")
+        self._adb = os.path.join(self._tool_path, 'adb')
+        self._aapt = os.path.join(self._tool_path, 'aapt')
 
     @logged
     def start(self):
         """启动adb server"""
         if self._tool_path:
-            self.run_cmd('{} start-server'.format(self.adb_path))
+            self.run_cmd('{} start-server'.format(self._adb))
 
     @logged
     def stop(self):
         """停止adb server"""
-        self.run_cmd('{} kill-server'.format(self.adb_path))
+        self.run_cmd('{} kill-server'.format(self._adb))
 
     @logged
     def connect(self, ip=None, port=5555):
@@ -41,7 +38,7 @@ class Adb(Command):
         """
         if ip:
             if port:
-                r = self.run_cmd('{} connect {}:{}'.format(self.adb_path, ip, port))
+                r = self.run_cmd('{} connect {}:{}'.format(self._adb, ip, port))
                 LOGGER.info('adb WIFI连接返回结果：{}'.format(r))
                 for el in r:
                     if re.search('failed.*', el.decode()):
@@ -58,7 +55,7 @@ class Adb(Command):
     def disconnect(self, ip=None):
         """断开设备连接"""
         if ip:
-            self.run_cmd('{} disconnect {}'.format(self.adb_path, ip))
+            self.run_cmd('{} disconnect {}'.format(self._adb, ip))
         else:
             self.kill_port()
 
@@ -69,7 +66,7 @@ class Adb(Command):
         :param package_fp: app文件地址
         :return: str(main activity)
         """
-        r = self.run_cmd('{} dump badging {}'.format(self.aapt_path, package_fp))
+        r = self.run_cmd('{} dump badging {}'.format(self._aapt, package_fp))
         activities = [el.decode() for el in r if re.search('launchable-activity: name=[\'].+?[\']', el.decode())]
         activity = activities[0].split('\'')[1]
         return activity
@@ -81,9 +78,9 @@ class Adb(Command):
         :param packages_fp: apk文件地址
         :return: type(str)
         """
-        r = self.run_cmd('{} d permissions {}'.format(self.aapt_path, packages_fp))
+        r = self.run_cmd('{} d permissions {}'.format(self._aapt, packages_fp))
         if not len(r):
-            r = self.run_cmd('{} d permissions {}'.format(self.aapt_path, packages_fp))
+            r = self.run_cmd('{} d permissions {}'.format(self._aapt, packages_fp))
             return r[0].decode().split(': ')[1]
         else:
             return r[0].decode().split(': ')[1]
@@ -91,10 +88,16 @@ class Adb(Command):
     @staticmethod
     @logged
     def _add_android_path(env_name='APPIUM_TOOLS'):
+        """
+        把atm自带adb和aapt工具添加到系统环境变量中
+        :param env_name: 环境变量key name
+        :return:
+        """
         if env_name not in os.environ.keys():
             __dir__ = os.path.dirname(os.path.abspath(__file__))
-            aapt_path = os.path.join(__dir__, '../tool/')
-            os.environ[env_name] = aapt_path
-            return aapt_path
+            tools_path = os.path.join(__dir__, '../tool/')
+            os.environ[env_name] = tools_path
+            return tools_path
         else:
-            return False
+            LOGGER.info("系统有atm.tools环境变量～")
+            return os.environ.get(env_name)
