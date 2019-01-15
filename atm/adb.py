@@ -4,7 +4,7 @@ import os
 
 from atm.log import LOGGER, logged
 from super_classes.commond import Command
-from exceptions.myexception import AdbEnvironmentException, AdbConnectException
+from exceptions.myexception import AdbConnectException
 
 
 class Adb(Command):
@@ -13,18 +13,17 @@ class Adb(Command):
     """
     def __init__(self):
         super(Adb, self).__init__()
-        self.tool_path = self._add_android_path()
-        if self.tool_path:
-            self.adb_path = os.path.join(self.tool_path, 'adb')
-            self.aapt_path = os.path.join(self.tool_path, 'aapt')
+        self._tool_path = self._add_android_path()
+        if self._tool_path:
+            self.adb_path = os.path.join(self._tool_path, 'adb')
+            self.aapt_path = os.path.join(self._tool_path, 'aapt')
         else:
-            LOGGER.error("tools文件有问题～！")
-            raise AdbEnvironmentException("环境错误！")
+            LOGGER.info("APPIUM_TOOLS 存在于系统环境中～")
 
     @logged
     def start(self):
         """启动adb server"""
-        if self.tool_path:
+        if self._tool_path:
             self.run_cmd('{} start-server'.format(self.adb_path))
 
     @logged
@@ -57,6 +56,7 @@ class Adb(Command):
 
     @logged
     def disconnect(self, ip=None):
+        """断开设备连接"""
         if ip:
             self.run_cmd('{} disconnect {}'.format(self.adb_path, ip))
         else:
@@ -64,6 +64,11 @@ class Adb(Command):
 
     @logged
     def get_package_main_activity(self, package_fp):
+        """
+        获取 apk 的 launch activity
+        :param package_fp: app文件地址
+        :return: str(main activity)
+        """
         r = self.run_cmd('{} dump badging {}'.format(self.aapt_path, package_fp))
         activities = [el.decode() for el in r if re.search('launchable-activity: name=[\'].+?[\']', el.decode())]
         activity = activities[0].split('\'')[1]
@@ -71,6 +76,11 @@ class Adb(Command):
 
     @logged
     def get_package_name(self, packages_fp):
+        """
+        获取apk包名
+        :param packages_fp: apk文件地址
+        :return: type(str)
+        """
         r = self.run_cmd('{} d permissions {}'.format(self.aapt_path, packages_fp))
         if not len(r):
             r = self.run_cmd('{} d permissions {}'.format(self.aapt_path, packages_fp))
