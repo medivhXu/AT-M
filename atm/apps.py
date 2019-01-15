@@ -7,6 +7,7 @@ from exceptions.myexception import *
 
 
 class Apps:
+    """app 包管理，主要用于自动读取app文件位置"""
     @logged
     def __init__(self, platform=None, app_dir_name='../packages/', apk_version=None, env='test'):
         __dir__ = os.path.dirname(os.path.abspath(__file__))
@@ -21,14 +22,14 @@ class Apps:
     @logged
     def path(self):
         self._set_app()
-        return str(self._app_path)
+        return str(self._app_path) or False
 
     @property
     @logged
     def name(self):
         self._set_app()
         self._app_name = str(self._app_path).split('/')[-1]
-        return self._app_name
+        return self._app_name or False
 
     @logged
     def _set_app(self):
