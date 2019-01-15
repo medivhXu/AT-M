@@ -3,57 +3,72 @@ import os
 import re
 
 from atm.log import LOGGER, logged
-from atm.adb import Adb
 from exceptions.myexception import *
 
 
-class Apk:
-    def __init__(self, app_dir_name='../packages/', apk_version=None):
+class Apps:
+    @logged
+    def __init__(self, platform=None, app_dir_name='../packages/', apk_version=None, env='test'):
         __dir__ = os.path.dirname(os.path.abspath(__file__))
-        self._file_path = os.path.join(__dir__, app_dir_name)
-        self._adb = Adb()
-        self.version = apk_version
-        self._num = 0
-        self.package_name = None
-        self.main_activity = None
-        self.apk_path = None
+        self._file_dir_path = os.path.join(__dir__, app_dir_name)
+        self._app_version = apk_version
+        self._app_path = None
+        self._app_name = None
+        self._platform = str(platform).capitalize()
+        self._env = env
 
-    def get_package_path(self):
-        apps = os.listdir(self._file_path)
+    @property
+    @logged
+    def path(self):
+        self._set_app()
+        return str(self._app_path)
+
+    @property
+    @logged
+    def name(self):
+        self._set_app()
+        self._app_name = str(self._app_path).split('/')[-1]
+        return self._app_name
+
+    @logged
+    def _set_app(self):
+        if self._platform == 'Android':
+            suffix = 'apk'
+        elif self._platform == 'Ios':
+            suffix = 'ipa'
+        else:
+            suffix = 'app'
+
+        apps = os.listdir(self._file_dir_path)
         if len(apps):
             for app in apps:
-                if self.version:
-                    apks = re.findall(re.compile('.*{}.*.apk'.format(self.version), re.S), app)
-                    if len(apks):
-                        for apk in apks:
-                            yield os.path.join(self._file_path, apk)
+                if self._app_version:
+                    you_app = re.findall(
+                        re.compile('.*{}.*{}.{}'.format(self._app_version, self._env, suffix), re.S), app)
+                    if len(you_app) > 1:
+                        raise AppFileNotOnlyException("{}文件不唯一".format(suffix))
+                    elif len(you_app) == 1:
+                        self._app_path = os.path.join(self._file_dir_path, you_app[0])
+                        LOGGER.info("找到{}文件，路径是：{}".format(suffix, self._app_path))
                     else:
-                        raise ApkFileNotFoundException("没找到任何apk文件!")
-
+                        continue
                 else:
-                    apks = [a for a in apps if re.findall(re.compile('.*.apk', re.S), a)]
-                    if len(apks):
-                        for apk in apks:
-                            yield os.path.join(self._file_path, apk)
+                    you_app = re.findall(re.compile('.*{}.{}'.format(self._env, suffix), re.S), app)
+                    if len(you_app) > 1:
+                        raise AppFileNotOnlyException("{}文件不唯一".format(suffix))
+                    elif len(you_app) == 1:
+                        self._app_path = os.path.join(self._file_dir_path, you_app[0])
+                        LOGGER.info("找到{}文件，路径是：{}".format(suffix, self._app_path))
                     else:
-                        LOGGER.warning('没找到apk文件!')
-                        return False
+                        continue
         else:
-            raise ApkFileNotFoundException("没找到任何apk文件!")
-
-    @property
-    def get_package_name(self):
-        for package in self.get_package_path():
-            self._num += 1
-        package_name = self._adb.get_package_name()
-        return package_name
-
-    @property
-    def get_main_activity(self):
-        main_activity = self._adb.get_package_main_activity(self.get_package_path().__next__())
-        return main_activity
+            raise AppFileNotFoundException("没找到任何apk文件!")
 
 
 if __name__ == '__main__':
-    apk1 = Apk()
-    print(apk1.get_package_path().__next__())
+    apk1 = Apps("android")
+    print(apk1.path)
+    print(apk1.name)
+    app = Apps()
+    print(app.name)
+    print(app.path)
