@@ -22,7 +22,11 @@ class InstrumentsEnvironmentException(MyException):
     pass
 
 
-class ApkFileNotFoundException(MyException):
+class AppFileNotFoundException(MyException):
+    pass
+
+
+class AppFileNotOnlyException(MyException):
     pass
 
 
@@ -30,6 +34,6 @@ class PlatFormException(MyException):
     pass
 
 
-class DeviceException(MyException):
+class DeviceNotFoundException(MyException):
     pass
 
