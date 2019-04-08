@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from super_classes.commond import Command
+from atm.super_classes.commond import Command
 
 
 class IMobile(Command):

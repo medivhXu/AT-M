@@ -13,7 +13,7 @@ __email__ = "medivh_xu@outlook.com"
 """
 
 
-from atm.apps import Apk
+from atm.apps import Apps
 from atm.devices import Android, Ios, IosSimulator
 from exceptions.myexception import *
 from atm.log import LOGGER, logged

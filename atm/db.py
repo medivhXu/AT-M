@@ -4,7 +4,7 @@ import os
 import configparser
 from collections import Iterable
 
-from super_classes.db_abstract import DB
+from atm.super_classes.db_abstract import DB
 from atm.log import LOGGER, logged
 
 

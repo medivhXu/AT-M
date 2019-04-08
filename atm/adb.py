@@ -3,7 +3,7 @@ import re
 import os
 
 from atm.log import LOGGER, logged
-from super_classes.commond import Command
+from atm.super_classes.commond import Command
 from exceptions.myexception import AdbConnectException
 
 
@@ -14,19 +14,19 @@ class Adb(Command):
     def __init__(self):
         super(Adb, self).__init__()
         self._tool_path = self._add_android_path()
-        self._adb = os.path.join(self._tool_path, 'adb')
-        self._aapt = os.path.join(self._tool_path, 'aapt')
+        self.adb = os.path.join(self._tool_path, 'adb')
+        self.aapt = os.path.join(self._tool_path, 'aapt')
 
     @logged
     def start(self):
         """启动adb server"""
         if self._tool_path:
-            self.run_cmd('{} start-server'.format(self._adb))
+            self.run_cmd('{} start-server'.format(self.adb))
 
     @logged
     def stop(self):
         """停止adb server"""
-        self.run_cmd('{} kill-server'.format(self._adb))
+        self.run_cmd('{} kill-server'.format(self.adb))
 
     @logged
     def connect(self, ip=None, port=5555):
@@ -38,7 +38,7 @@ class Adb(Command):
         """
         if ip:
             if port:
-                r = self.run_cmd('{} connect {}:{}'.format(self._adb, ip, port))
+                r = self.run_cmd('{} connect {}:{}'.format(self.adb, ip, port))
                 LOGGER.info('adb WIFI连接返回结果：{}'.format(r))
                 for el in r:
                     if re.search('failed.*', el.decode()):
@@ -55,7 +55,7 @@ class Adb(Command):
     def disconnect(self, ip=None):
         """断开设备连接"""
         if ip:
-            self.run_cmd('{} disconnect {}'.format(self._adb, ip))
+            self.run_cmd('{} disconnect {}'.format(self.adb, ip))
         else:
             self.kill_port()
 
@@ -66,7 +66,7 @@ class Adb(Command):
         :param package_fp: app文件地址
         :return: str(main activity)
         """
-        r = self.run_cmd('{} dump badging {}'.format(self._aapt, package_fp))
+        r = self.run_cmd('{} dump badging {}'.format(self.aapt, package_fp))
         activities = [el.decode() for el in r if re.search('launchable-activity: name=[\'].+?[\']', el.decode())]
         activity = activities[0].split('\'')[1]
         return activity
@@ -78,9 +78,9 @@ class Adb(Command):
         :param packages_fp: apk文件地址
         :return: type(str)
         """
-        r = self.run_cmd('{} d permissions {}'.format(self._aapt, packages_fp))
+        r = self.run_cmd('{} d permissions {}'.format(self.aapt, packages_fp))
         if not len(r):
-            r = self.run_cmd('{} d permissions {}'.format(self._aapt, packages_fp))
+            r = self.run_cmd('{} d permissions {}'.format(self.aapt, packages_fp))
             return r[0].decode().split(': ')[1]
         else:
             return r[0].decode().split(': ')[1]

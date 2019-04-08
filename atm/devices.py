@@ -1,60 +1,58 @@
 # !/uer/bin/env python3
 
-from atm.log import LOGGER, logged
-from super_classes.devices_abstract import *
+from atm.super_classes.devices_abstract import Devices
+from atm.log import logged
 from atm.adb import Adb
 from atm.imobile import IMobile
-from atm.apps import Apk
-from exceptions.myexception import *
+from atm.apps import Apps
 
 
 class Android(Devices):
     @logged
-    def __init__(self, ip, port):
+    def __init__(self, ip=None, port=None):
         super(Android, self).__init__()
         self._ip = ip
         self._port = port
-        self.adb = Adb()
-        self._device_name = None
-        self.apk = Apk()
+        self.adb_cls = Adb()
+        self.apk = Apps(self.__class__.__name__)
+        self._devices_info = {}
         self._device_info = {}
+        self._device_name = None
 
     def start_appium(self):
-        self.adb.start_appium(udid=self.get_devices_name_dict())
+        pass
 
     def connect(self):
         if self._ip:
-            self.adb.connect(self._ip, self._port)
-            return self.get_devices_name_dict()
+            self.adb_cls.connect(self._ip, self._port)
+            return self.get_device_info()
         else:
-            return self.get_devices_name_dict()
+            return self.get_device_info()
+
+    def get_devices_info(self):
+        self._devices_info[self._device_name] = self._device_info
+        return self._devices_info
 
     @logged
     def disconnect(self):
-        self.adb.disconnect(self._ip)
+        self.adb_cls.disconnect(self._ip)
 
-    def get_devices_version(self):
-        r = self.adb.run_cmd('{} shell getprop ro.build.version.release'.format(self.adb.adb_path))
-        return r[0].decode()
-
-    def get_devices_name_dict(self):
-        r = self.adb.run_cmd('{} devices'.format(self.adb.adb_path))
-        device_list = [d.decode() for d in r[1:] if d != b'\n']
-        device_dict = {}
-        d1 = [dev_.split() for dev_ in device_list]
-        device = {}
-        for i in d1:
-            if i[1] == 'unauthorized':
-                LOGGER.warning('[-]设备：设备首次接入，请手动授权调试！')
-                raise AdbEnvironmentException("[-]设备：设备首次接入，请手动授权调试！")
-            elif i[1] == 'offline':
-                raise AdbConnectException("不能连接设备，请在开发者选项中打开usb调试～")
-            elif i[1] == 'no permissions':
-                raise AdbEnvironmentException("请检查adb环境！参考网站https://blog.csdn.net/binglumeng/article/details/69525361")
-            else:
-                device_dict[i[1]] = i[0]
-        device.update(zip([j + 1 for j in range(len(device_dict))], device_dict.items()))
-        return device
+    def get_device_info(self):
+        device_info_byte = self.adb_cls.run_cmd('{} shell getprop'.format(self.adb_cls.adb))
+        dic = {}
+        for i in device_info_byte:
+            line = i.decode().strip().split(':')
+            if line[0] != ']':
+                dic[line[0].strip()[1:-1]] = line[1].strip()[1:-1]
+        self._device_name = dic.get('ro.product.model')
+        device_info = {self._device_name: {'platformversion': dic.get('ro.build.version.release'),
+                                           'devicename': dic.get('ro.serialno'),
+                                           'automationname': 'Appium',
+                                           'unicodekeyboard': True,
+                                           'resetkeyboard': True,
+                                           'noreset': True,
+                                           }}
+        return device_info
 
 
 class Ios(Devices):
@@ -68,11 +66,11 @@ class Ios(Devices):
         pass
 
     @logged
-    def get_devices_info(self, device_name):
+    def get_devices_info(self):
         pass
 
     @logged
-    def disconnect(self, udid):
+    def disconnect(self):
         pass
 
 
@@ -82,14 +80,32 @@ class IosSimulator(Devices):
         super(IosSimulator, self).__init__()
         self._libimobile = IMobile()
 
+    def connect(self):
+        pass
+
     @logged
     def disconnect(self, ip=None):
         pass
 
     @logged
-    def get_devices_info(self, device_name):
+    def get_devices_info(self):
         pass
 
 
 class AndroidSimulator(Devices):
-    pass
+    def __init__(self):
+        super(AndroidSimulator, self).__init__()
+
+    def connect(self):
+        pass
+
+    def disconnect(self):
+        pass
+
+    def get_devices_info(self):
+        pass
+
+
+if __name__ == '__main__':
+    run = Android()
+    print(run.get_device_info())

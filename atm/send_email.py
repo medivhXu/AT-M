@@ -47,6 +47,10 @@ class SendEmail(object):
         self._send_email()
 
     @logged
+    def send_xml_to_email(self, fp):
+        pass
+
+    @logged
     def send_file_to_email(self, fp):
         """
         发送附件格式邮件
