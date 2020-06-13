@@ -1,0 +1,37 @@
+ANDROID:
+  appActivity: .activity.MainActivity
+  appPackage: com.xxx.xxxxx
+  automationName: Appium
+  deviceName: emulator-5554   # auto
+  noreset: true
+  platformName: Android
+  platformVersion: 6.0.1  # auto
+  resetkeyboard: true
+  unicodekeyboard: true
+EMAIL:
+  password:
+  port: 465
+  recipients:
+  - Medivh_xu@outlook.com
+  sender: Medivh_xu@outlook.com
+  smtp_server: smtp.exmail.qq.com
+IOS:
+  app:
+  autoAcceptAlerts: true
+  automationName: XCUITest
+  bundleId:
+  deviceName: iPhone XS Max
+  platformName: iOS
+  platformVersion: 13.2
+  udid: null
+  uuid:
+  xcodeorgId:
+  xcodesigningId: iPhone Developer
+MYSQL:
+  charset: utf8mb4
+  database: null
+  host:
+  password:
+  port: 3306
+  user:
+URL: http://127.0.0.1:4723/wd/hub

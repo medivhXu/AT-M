@@ -1,0 +1,7 @@
+PyMySQL
+Appium-Python-Client
+selenium
+PyYAML
+uiautomator2
+tqdm
+loguru
